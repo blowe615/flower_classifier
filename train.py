@@ -34,3 +34,6 @@ testloader = torch.utils.data.DataLoader(test_dataset, batch_size = 32, shuffle=
 cat_to_name = label_mapping('cat_to_name.json')
 
 print(cat_to_name['1'])
+
+arch_dict = {'vgg19_bn': models.vgg19_bn(pretrained=True),
+             'alexnet': models.alexnet(pretrained=True)}
