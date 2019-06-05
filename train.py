@@ -1,6 +1,5 @@
 # Import packages
 import numpy as np
-from collections import OrderedDict
 
 import json
 import torch
@@ -8,7 +7,7 @@ from torch import nn, optim
 from torchvision import datasets, transforms, models
 
 from workspace_utils import active_session
-from helper_functions import train_parser, load_dataset, define_transforms, label_mapping
+from helper_functions import train_parser, load_dataset, define_transforms
 from model_functions import DeepNetworkClassifier, train, test
 
 # Parse arguments from command line

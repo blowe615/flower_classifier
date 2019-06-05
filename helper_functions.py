@@ -1,14 +1,16 @@
 # Import packages
+import numpy as np
+from PIL import Image
+
+import argparse
+import json
 import torch
 from torch import nn, optim
 from torchvision import datasets, transforms, models
-#import matplotlib.pyplot as plt
-import numpy as np
-#import random
+
 from workspace_utils import active_session
-from collections import OrderedDict
-import json
-import argparse
+from model_functions import DeepNetworkClassifier
+
 
 def train_parser():
     '''
@@ -33,7 +35,7 @@ def train_parser():
     args=parser.parse_args()
     arg_dict=vars(args)
     return arg_dict
-    
+
 def load_dataset(data_directory):
     '''
     Takes a data directory and splits it into training, validation, and testing directories
@@ -79,13 +81,17 @@ def load_checkpoint(filepath):
     filepath: string, contains filepath where the trained model parameters are saved in a dictionary
     returns: a pytorch model, the optimizer, and the number of epochs
     '''
+    # Create a dictionary of torchvision models to choose from
+    print('Downloading models...')
+    arch_dict = {'vgg19_bn': models.vgg19_bn(pretrained=True),
+                 'alexnet': models.alexnet(pretrained=True)}
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_dict = torch.load(filepath, map_location=device)
-    model = models.vgg19_bn(pretrained=True)
+    model = arch_dict[model_dict['arch']]
     for param in model.parameters():
         param.requires_grad = False
     # Build the model layers
-model.classifier = nn.Sequential(model_layers)
+    model.classifier = DeepNetworkClassifier(model_dict['input_size'], model_dict['output_size'], model_dict['hidden_layers'])
     model.load_state_dict(model_dict['state_dict'])
     model.class_to_idx = model_dict['class_to_idx']
     optimizer = optim.Adam(model.classifier.parameters())
@@ -93,3 +99,35 @@ model.classifier = nn.Sequential(model_layers)
     epochs = model_dict['epochs']
 
     return model, optimizer, epochs
+
+def process_image(image):
+    ''' Scales, crops, and normalizes a PIL image for a PyTorch model,
+        returns an Numpy array
+    '''
+    # Process a PIL image for use in a PyTorch model
+    # Open the image
+    im = Image.open(image)
+    # Obtain the dimensions of the image
+    (w,h) = im.size
+    # Resize the image to 256 pixels on the shortest side
+    if w < h:
+        aspect_ratio = h/w
+        im.thumbnail((256, 256*aspect_ratio))
+    else:
+        aspect_ratio = w/h
+        im.thumbnail((256*aspect_ratio, 256))
+    # Obtain the new dimensions of the image
+    (w_new,h_new) = im.size
+    # Center crop the image to 224 x 224
+    cropped_image = im.crop((w_new//2 - 112, h_new//2 - 112, w_new//2 + 112, h_new//2 + 112))
+    # Convert image to numpy array
+    np_im = np.array(cropped_image)
+    # Scale from 0-255 to 0-1
+    np_im = np_im / 255
+    # Normalize
+    means = np.array([0.485, 0.456, 0.406])
+    stds = np.array([0.229, 0.224, 0.225])
+    image = (np_im - means) / stds
+    # Rearrange dimensions to match expected input into PyTorch (color channel in 1st dim instead of 3rd dim)
+    image = image.transpose((2,0,1))
+    return image

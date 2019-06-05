@@ -1,15 +1,10 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-
-arch_input_dict = {'vgg19_bn': 25088,
-                   'alexnet': 9216}
-arch='vgg19_bn'
-arch_input_dict[arch]
-102
+#from helper_functions import process_image
 
 class DeepNetworkClassifier(nn.Module):
-    def __init__(self, input_units, output_units, hidden_units=1000,p_drop=0.2):
+    def __init__(self, input_units, output_units, hidden_units,p_drop=0.2):
         '''
         Builds a classifier for a pretrained deep neural network for the flower dataset
 
@@ -41,7 +36,7 @@ class DeepNetworkClassifier(nn.Module):
 
         return x
 
-def train(model, trainloader, validloader, criterion, optimizer, epochs=3, device):
+def train(model, trainloader, validloader, criterion, optimizer, epochs, device):
     '''
     Train the model
 
@@ -63,12 +58,12 @@ def train(model, trainloader, validloader, criterion, optimizer, epochs=3, devic
     for epoch in range(epochs):
         for images, labels in trainloader:
             steps += 1
-            # Send the images and labels to the GPU
+            # Send the images and labels to the device
             images, labels = images.to(device), labels.to(device)
             # Zero gradients for this step
             optimizer.zero_grad()
             # Perform a forward pass on the models
-            log_ps = model(images)
+            log_ps = model.forward(images)
             # Calculate loss
             loss = criterion(log_ps, labels)
             # Backpropagate error
@@ -88,7 +83,7 @@ def train(model, trainloader, validloader, criterion, optimizer, epochs=3, devic
                 # Run validation dataset through the network
                 with torch.no_grad():
                     for images, labels in validloader:
-                        # Send the images and labels to the GPU
+                        # Send the images and labels to the device
                         images_v, labels_v = images.to(device), labels.to(device)
                         # Perform forward pass with validation images
                         log_ps_valid = model.forward(images_v)
@@ -134,7 +129,7 @@ def test(model, testloader, device):
     # Run test dataset through the network
     with torch.no_grad():
         for images, labels in testloader:
-            # Send the images and labels to the GPU
+            # Send the images and labels to the device
             images_t, labels_t = images.to(device), labels.to(device)
             # Perform forward pass with validation images
             log_ps_test = model.forward(images_t)
@@ -153,3 +148,46 @@ def test(model, testloader, device):
 
     # Return model to training mode to calculate grads
     model.train();
+
+def predict(image, model, topk, device):
+    '''
+    Predict the class (or classes) of an image using a trained deep learning model.
+
+    Inputs
+    ------
+    image: numpy array, processed for PyTorch (224x224, normalized, color dimension in 3rd channel)
+    model: torchvision model
+    topk: int, number of classes to output
+    returns lists of the topk probabilities and the corresponding classes
+    '''
+
+    # Convert image from a numpy array to a tensor
+    image_tensor = torch.from_numpy(image)
+    image_tensor = image_tensor.unsqueeze(0)
+    # Run the test dataset through the model
+    # Send the model to the device
+    model.to(device)
+    # Set model to evaluate mode
+    model.to(torch.double)
+    model.eval()
+
+    # Run the image through the network
+    with torch.no_grad():
+        # Send the image to the device
+        image_tensor = image_tensor.to(device)
+        # Perform a forward pass with the image
+        log_ps = model.forward(image_tensor)
+        # Calculate the probabilities from the log_probabilities
+        ps = torch.exp(log_ps)
+        # Determine the top k probabilities
+        top_p, top_class = ps.topk(topk, dim=1)
+        labels = []
+        for i in top_class.tolist()[0]:
+            for cls, idx in model.class_to_idx.items():
+                if idx == i:
+                    labels.append(cls)
+
+    # Return model to train mode
+    model.train()
+
+    return top_p.tolist()[0], labels
