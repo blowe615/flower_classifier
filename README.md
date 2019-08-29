@@ -70,9 +70,11 @@ Predict flower name from an image with `predict.py` along with the probability o
 ## Results
 Running `train.py` will print out the epoch number, training loss, validation loss, and validation accuracy after every 10 batches of 32 images.
 
-
+![](https://github.com/blowe615/flower_classifier/blob/master/train_results.png)
 
 Running `predict.py` will output the image provided and the top **K** categories along with their probabilities.
+
+![](https://github.com/blowe615/flower_classifier/blob/master/predict_example.png)
 
 ## Acknowledgements
 Stack Overflow posts and the documentation for each of the python packages were extremely helpful in completing this project.
