@@ -13,6 +13,8 @@ All of the following packages were used for this project and can be found in the
 * PIL
 * Pytorch (torch and torchvision)
 
+The flower image data set can be found [here](http://www.robots.ox.ac.uk/~vgg/data/flowers/102/index.html).
+
 ## Project Motivation
 
 As part of Udacity's [Data Scientist Nanodegree](https://www.udacity.com/school-of-data-science) program, I created an image classifier based on a data set of 102 types of flowers.  The classifier consists of a deep convolutional neural net that was pretrained on ImageNet images and available through PyTorch's torchvision.models package.  For this project, I had to load and preprocess the image set, train the classifier on the image set, and then predict flower types for a given image.  These steps can be run either in a Jupyter notebook, or from the command line of a terminal.
@@ -42,10 +44,10 @@ Train a new network on a data set with `train.py`
     `python train.py data_dir --save_dir save_directory`
   * Choose architecture (alexnet or vgg19_bn):
 
-   `python train.py data_dir --arch "alexnet"`
+    `python train.py data_dir --arch "alexnet"`
   * Set hyperparameters (defaults: 0.001, 1000, 3):
 
-   `python train.py data_dir --learning_rate 0.01 --hidden_units 512 --epochs 20`
+    `python train.py data_dir --learning_rate 0.01 --hidden_units 512 --epochs 20`
   * Use GPU for training (default off):
 
     `python train.py data_dir --gpu`
@@ -59,10 +61,10 @@ Predict flower name from an image with `predict.py` along with the probability o
 * Options:
   * Return top **K** most likely classes (default 5):
 
-   `python predict.py input checkpoint --top_k 3`
+    `python predict.py input checkpoint --top_k 3`
   * Use a mapping of categories to real names (default `cat_to_name.json`):
 
-   `python predict.py input checkpoint --category_names cat_to_name.json`
+    `python predict.py input checkpoint --category_names cat_to_name.json`
   * Use GPU for inference (default off):
 
     `python predict.py input checkpoint --gpu`
