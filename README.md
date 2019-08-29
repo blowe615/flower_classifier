@@ -9,7 +9,7 @@
 ## Installation
 All of the following packages were used for this project and can be found in the standard Anaconda distribution for Python 3.7:
 * NumPy
-* matplotlib
+* Matplotlib
 * PIL
 * Pytorch (torch and torchvision)
 
@@ -31,22 +31,48 @@ Files 1-3 are required to run the Jupyter notebook.  Files 2-7 are required to r
 ## Using the Command Line
 ### Training a model
 Train a new network on a data set with `train.py`
-* Basic usage: `python train.py data_directory`
+* Basic usage:
+
+  `python train.py data_directory`
 * Prints out training loss, validation loss, and validation accuracy as the network trains
 * The `data_directory` must have folders within it labeled `train`, `valid`, and `test` and within each of those must be folders with index labels (1, 2, 3, etc) containing images
 * Options:
-  * Set directory to save checkpoints: `python train.py data_dir --save_dir save_directory`
-  * Choose architecture (alexnet or vgg19_bn): `python train.py data_dir --arch "alexnet"``
-  * Set hyperparameters: `python train.py data_dir --learning_rate 0.01 --hidden_units 512 --epochs 20`
-  * Use GPU for training: `python train.py data_dir --gpu`
+  * Set directory to save checkpoints (default `checkpoint.pth`):
+
+    `python train.py data_dir --save_dir save_directory`
+  * Choose architecture (alexnet or vgg19_bn):
+
+   `python train.py data_dir --arch "alexnet"`
+  * Set hyperparameters (defaults: 0.001, 1000, 3):
+
+   `python train.py data_dir --learning_rate 0.01 --hidden_units 512 --epochs 20`
+  * Use GPU for training (default off):
+
+    `python train.py data_dir --gpu`
 
 ### Predicting Flower Type
 Predict flower name from an image with `predict.py` along with the probability of that name. You'll pass in a single image `/path/to/image` and return the flower name and class probability.
 
-* Basic usage: `python predict.py /path/to/image checkpoint`
+* Basic usage:
+
+  `python predict.py /path/to/image checkpoint`
 * Options:
-  * Return top **K** most likely classes: `python predict.py input checkpoint --top_k 3`
-  * Use a mapping of categories to real names: `python predict.py input checkpoint --category_names cat_to_name.json`
-  * Use GPU for inference: `python predict.py input checkpoint --gpu`
+  * Return top **K** most likely classes (default 5):
+
+   `python predict.py input checkpoint --top_k 3`
+  * Use a mapping of categories to real names (default `cat_to_name.json`):
+
+   `python predict.py input checkpoint --category_names cat_to_name.json`
+  * Use GPU for inference (default off):
+
+    `python predict.py input checkpoint --gpu`
 
 ## Results
+Running `train.py` will print out the epoch number, training loss, validation loss, and validation accuracy after every 10 batches of 32 images.
+
+
+
+Running `predict.py` will output the image provided and the top **K** categories along with their probabilities.
+
+## Acknowledgements
+Stack Overflow posts and the documentation for each of the python packages were extremely helpful in completing this project.
